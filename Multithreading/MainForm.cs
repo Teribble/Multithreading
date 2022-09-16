@@ -30,13 +30,9 @@ namespace Multithreading
         /// <param name="e"></param>
         private void OnButton1Click(object sender, EventArgs e)
         {
-            Thread thread = new Thread(Task1);
+            Threads.Add(new Thread(Task1) { Name = nameof(Task1) });
 
-            thread.Name = nameof(Task1);
-
-            Threads.Add(thread);
-
-            thread.Start(label2);
+            Threads.Last().Start(label2);
         }
         /// <summary>
         /// Задание первое
@@ -44,17 +40,18 @@ namespace Multithreading
         /// <param name="obj"></param>
         public void Task1(object obj)
         {
-            int min = 0, max = 0;
-
-            Examination(textBox1.Text, textBox2.Text, out min, out max);
-
-            var label = (Label)obj;
-
-            for (int i = min; i <= max; i++)
+            if (obj is Label label)
             {
-                label.Invoke(new Action(() => label.Text = i.ToString()));
+                int min = 0, max = 0;
 
-                Thread.Sleep(200);
+                Examination(textBox1.Text, textBox2.Text, out min, out max);
+
+                for (int i = min; i <= max; i++)
+                {
+                    label.Invoke(new Action(() => label.Text = i.ToString()));
+
+                    Thread.Sleep(200);
+                }
             }
         }
         /// <summary>
@@ -76,12 +73,13 @@ namespace Multithreading
         /// <param name="e"></param>
         private void OnTextChangedTextBox(object sender, EventArgs e)
         {
-            var bufferLubel = (TextBox)sender;
-
-            if (Int32.TryParse(bufferLubel.Text, out int a) || bufferLubel.Text == string.Empty)
-                textBox1.Invoke(new Action(() => errorLabel.Visible = false));
-            else
-                textBox1.Invoke(new Action(() => errorLabel.Visible = true));
+            if (sender is TextBox textBox)
+            {
+                if (Int32.TryParse(textBox.Text, out int a) || textBox.Text == string.Empty)
+                    textBox1.Invoke(new Action(() => errorLabel.Visible = false));
+                else
+                    textBox1.Invoke(new Action(() => errorLabel.Visible = true));
+            }
         }
         /// <summary>
         /// Возникает при изменении параметра видимости
@@ -101,26 +99,27 @@ namespace Multithreading
         /// <param name="obj"></param>
         public void Task2(object obj)
         {
-            if(Int32.TryParse(textBox2.Text, out int max))
+            if (obj is Label label)
             {
-                max = Int32.Parse(textBox2.Text);
-            }
-            else
-            {
-                max = int.MaxValue;
-            }
+                if (Int32.TryParse(textBox2.Text, out int max))
+                {
+                    max = Int32.Parse(textBox2.Text);
+                }
+                else
+                {
+                    max = int.MaxValue;
+                }
 
-            Label label = (Label)obj;
+                int j = 1;
 
-            int j = 1;
+                for (int i = 1; i <= max; i += j)
+                {
+                    label.Invoke(new Action(() => label.Text = i.ToString()));
 
-            for (int i = 1; i <= max; i += j)
-            {
-                label.Invoke(new Action(() => label.Text = i.ToString()));
+                    j = i - j;
 
-                j = i - j;
-
-                Thread.Sleep(200);
+                    Thread.Sleep(200);
+                }
             }
         }
         /// <summary>
@@ -130,13 +129,9 @@ namespace Multithreading
         /// <param name="e"></param>
         private void OnClickButton2(object sender, EventArgs e)
         {
-            Thread thread = new Thread(Task2);
+            Threads.Add(new Thread(Task2) { Name = nameof(Task2) });
 
-            thread.Name = nameof(Task2);
-
-            Threads.Add(thread);
-
-            thread.Start(label8);
+            Threads.Last().Start(label8);        
         }
         /// <summary>
         /// Проверка записан ли числа
@@ -196,13 +191,9 @@ namespace Multithreading
         /// <param name="e"></param>
         private void OnButton8Click(object sender, EventArgs e)
         {
-            Thread thread = new Thread(ContinueTask1);
+            Threads.Add(new Thread(ContinueTask1) { Name = nameof(ContinueTask1) });
 
-            thread.Name = nameof(ContinueTask1);
-
-            Threads.Add(thread);
-
-            thread.Start(label2);
+            Threads.Last().Start(label2);
         }
         /// <summary>
         /// Продолжить выполенение первого задания
@@ -210,24 +201,22 @@ namespace Multithreading
         /// <param name="obj"></param>
         private void ContinueTask1(object obj)
         {
-            int min = Int32.Parse(label2.Text);
-
-            if (Int32.TryParse(textBox2.Text, out int max))
+            if (obj is Label label)
             {
+                int min = Int32.Parse(label2.Text);
 
-            }
-            else
-            {
-                max = int.MaxValue;
-            }
+                if (Int32.TryParse(textBox2.Text, out int max)) { }
+                else
+                {
+                    max = int.MaxValue;
+                }
 
-            Label label = (Label)obj;
+                for (int i = min; i < max; i++)
+                {
+                    label.Invoke(new Action(() => label.Text = i.ToString()));
 
-            for (int i = min; i < max; i++)
-            {
-                label.Invoke(new Action(() => label.Text = i.ToString()));
-
-                Thread.Sleep(200);
+                    Thread.Sleep(200);
+                }
             }
         }
         /// <summary>
@@ -236,25 +225,26 @@ namespace Multithreading
         /// <param name="obj"></param>
         private void ContinueTask2(object obj)
         {
-            int min = Int32.Parse(label8.Text);
-
-            if (Int32.TryParse(textBox2.Text, out int max)) { }
-            else
+            if (obj is Label label)
             {
-                max = int.MaxValue;
-            }
+                int min = Int32.Parse(label8.Text);
 
-            Label label = (Label)obj;
+                if (Int32.TryParse(textBox2.Text, out int max)) { }
+                else
+                {
+                    max = int.MaxValue;
+                }
 
-            int j = min;
+                int j = min;
 
-            for (int i = min; i <= max; i += j)
-            {
-                label.Invoke(new Action(() => label.Text = i.ToString()));
+                for (int i = min; i <= max; i += j)
+                {
+                    label.Invoke(new Action(() => label.Text = i.ToString()));
 
-                j = i - j;
+                    j = i - j;
 
-                Thread.Sleep(200);
+                    Thread.Sleep(200);
+                }
             }
         }
         /// <summary>
@@ -273,13 +263,9 @@ namespace Multithreading
         /// <param name="e"></param>
         private void OnButton7Click(object sender, EventArgs e)
         {
-            Thread thread = new Thread(ContinueTask2);
+            Threads.Add(new Thread(ContinueTask2) { Name = nameof(ContinueTask2) });
 
-            thread.Name = nameof(ContinueTask2);
-
-            Threads.Add(thread);
-
-            thread.Start(label8);
+            Threads.Last().Start(label8);
         }
         /// <summary>
         /// Возникает при изменении параметра видимости
@@ -300,12 +286,13 @@ namespace Multithreading
         /// <param name="e"></param>
         private void OnTextChangedTextBox2(object sender, EventArgs e)
         {
-            var bufferLubel = (TextBox)sender;
-
-            if (Int32.TryParse(bufferLubel.Text, out int a) || bufferLubel.Text == string.Empty)
-                textBox4.Invoke(new Action(() => label11.Visible = false));
-            else
-                textBox4.Invoke(new Action(() => label11.Visible = true));
+            if (sender is TextBox texbox)
+            {
+                if (Int32.TryParse(texbox.Text, out int a) || texbox.Text == string.Empty)
+                    textBox4.Invoke(new Action(() => label11.Visible = false));
+                else
+                    textBox4.Invoke(new Action(() => label11.Visible = true));
+            }
         }
         /// <summary>
         /// Рестарт первого и второго задания с новыми параметрами
@@ -318,21 +305,13 @@ namespace Multithreading
 
             OnButton4Click(sender, e);
 
-            Thread thread = new Thread(RestartTask1);
+            Threads.Add(new Thread(RestartTask1) { Name = nameof(Task1)});
 
-            thread.Name = nameof(Task1);
+            Threads.Last().Start(label2);
 
-            Threads.Add(thread);
+            Threads.Add(new Thread(RestartTask2) { Name = nameof(Task2) });
 
-            thread.Start(label2);
-
-            thread = new Thread(RestartTask2);
-
-            thread.Name = nameof(Task2);
-
-            Threads.Add(thread);
-
-            thread.Start(label8);
+            Threads.Last().Start(label8);
         }
         /// <summary>
         /// Перезапускает первое задание с новыми параметрами
@@ -340,17 +319,18 @@ namespace Multithreading
         /// <param name="obj"></param>
         private void RestartTask1(object obj)
         {
-            int min = 0, max = 0;
-
-            Examination(textBox4.Text, textBox3.Text, out min, out max);
-
-            var label = (Label)obj;
-
-            for (int i = min; i <= max; i++)
+            if (obj is Label label)
             {
-                label.Invoke(new Action(() => label.Text = i.ToString()));
+                int min = 0, max = 0;
 
-                Thread.Sleep(200);
+                Examination(textBox4.Text, textBox3.Text, out min, out max);
+
+                for (int i = min; i <= max; i++)
+                {
+                    label.Invoke(new Action(() => label.Text = i.ToString()));
+
+                    Thread.Sleep(200);
+                }
             }
         }
         /// <summary>
@@ -359,23 +339,24 @@ namespace Multithreading
         /// <param name="obj"></param>
         private void RestartTask2(object obj)
         {
-            if (Int32.TryParse(textBox3.Text, out int max)) { }
-            else
+            if (obj is Label label)
             {
-                max = int.MaxValue;
-            }
+                if (Int32.TryParse(textBox3.Text, out int max)) { }
+                else
+                {
+                    max = int.MaxValue;
+                }
 
-            Label label = (Label)obj;
+                int j = Int32.Parse(textBox4.Text);
 
-            int j = Int32.Parse(textBox4.Text);
+                for (int i = Int32.Parse(textBox4.Text); i <= max; i += j)
+                {
+                    label.Invoke(new Action(() => label.Text = i.ToString()));
 
-            for (int i = Int32.Parse(textBox4.Text); i <= max; i += j)
-            {
-                label.Invoke(new Action(() => label.Text = i.ToString()));
+                    j = i - j;
 
-                j = i - j;
-
-                Thread.Sleep(200);
+                    Thread.Sleep(200);
+                }
             }
         }
     }
